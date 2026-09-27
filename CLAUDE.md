@@ -39,9 +39,12 @@ SHA with the tag as a frozen comment. They're intentionally language-agnostic:
 merge-conflict / symlink / YAML / EOF / whitespace / line-ending / shebang
 checks, and `no-commit-to-branch` which blocks direct commits to `main`),
 `gitleaks` (secret scanning), `actionlint` (GitHub Actions linting),
-`shellcheck` (shell scripts), and `commitlint` (Conventional Commits, at the
-`commit-msg` stage). When a repo derived from this template gains a language,
-add its formatter/linter hooks here rather than replacing these.
+`shellcheck` (shell scripts), `hadolint` (Dockerfile linting, via the
+`hadolint-docker` hook so no local hadolint install is required — only
+activates on repos that actually have a Dockerfile), and `commitlint`
+(Conventional Commits, at the `commit-msg` stage). When a repo derived from
+this template gains a language, add its formatter/linter hooks here rather
+than replacing these.
 
 ## CI
 
@@ -49,17 +52,20 @@ Workflows are prefixed `ci-` (pull-request checks) or `cd-` (post-merge delivery
 
 - **ci-lint** (`.github/workflows/ci-lint.yml`): runs all linters
   on PRs to `main` via the `pre-commit` job, which calls the reusable workflow
-  `jay-withers/template-pipelines/.github/workflows/pre-commit.yml` (pinned by
+  `jay-withers/workflows/.github/workflows/pre-commit.yml` (pinned by
   commit SHA, with the tag as a comment) rather than inlining the steps. Because
   it's a reusable-workflow call, the status-check context it reports on a PR is
   `pre-commit / Pre-commit` (`<caller job id> / <reusable job name>`), not the
   bare `pre-commit` job id — see the `CHECKS` note under GitHub repo settings.
   The reusable workflow's `terraform` input defaults to `false` and is left
-  unset here.
+  unset here. It runs `pre-commit run --all-files` directly against whatever
+  `.pre-commit-config.yaml` the calling repo has, so hooks like `hadolint`
+  need no changes on the workflow side — a Docker-capable `ubuntu-latest`
+  runner is all `hadolint-docker` needs.
 - **cd-tag** (`.github/workflows/cd-tag.yml`): auto-creates a semver tag (and a
   matching GitHub release) on every merge to `main` from the Conventional
   Commits since the last release, via the shared
-  `jay-withers/template-pipelines/.github/workflows/release.yml` reusable
+  `jay-withers/workflows/.github/workflows/release.yml` reusable
   workflow (default bump: patch).
 
 ## Renovate
