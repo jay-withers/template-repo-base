@@ -63,12 +63,12 @@ Workflows are prefixed `ci-` (pull-request checks) or `cd-` (post-merge delivery
 
 - **`.github/workflows/ci-lint.yml`** — runs all pre-commit hooks on PRs
   to `main`, by calling the shared reusable workflow
-  `jay-withers/template-pipelines/.github/workflows/pre-commit.yml`. Its status
+  `jay-withers/workflows/.github/workflows/pre-commit.yml`. Its status
   check reports as `pre-commit / Pre-commit`.
 - **`.github/workflows/cd-tag.yml`** — on every merge to `main`, creates a
   semver tag and matching GitHub release from the Conventional Commits since the
   last release (default bump: patch), via
-  `jay-withers/template-pipelines/.github/workflows/release.yml`.
+  `jay-withers/workflows/.github/workflows/release.yml`.
 
 Both pin the reusable workflow by commit SHA with the tag as a comment. Add your
 own `ci-*` workflows (build, test, etc.) as you add code, and require their
