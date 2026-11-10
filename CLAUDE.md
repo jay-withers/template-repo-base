@@ -14,7 +14,7 @@ project-specific hooks/CI on top of this baseline.
 ## Dev container
 
 The repo is built around the dev container at `.devcontainer/devcontainer.json`,
-which uses the image `ghcr.io/jay-withers/dev-containers/base:latest` and runs
+which uses the image `ghcr.io/jay-withers/dev-containers/base` (pinned by version and digest) and runs
 `make install` on creation to wire up the pre-commit hooks. Prefer working
 inside the container so tooling versions match CI.
 
