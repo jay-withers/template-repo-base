@@ -1,7 +1,7 @@
 # template-generic-repo
 
 A language-agnostic GitHub repository template. It gives a new repo a working
-baseline on day one — a dev container, generic pre-commit hooks, PR/merge CI
+baseline on day one — pinned tools (mise), generic pre-commit hooks, PR/merge CI
 workflows, Renovate dependency updates, and Conventional Commits enforcement —
 with no application code, so you add your own source and layer
 project-specific tooling on top.
@@ -10,21 +10,25 @@ project-specific tooling on top.
 
 1. Create a repo from this template (**Use this template** on GitHub, or `gh
    repo create --template`).
-2. Open it in the dev container (VS Code: **Reopen in Container**, or GitHub
-   Codespaces). The container runs `make install` on creation to wire up the
-   pre-commit hooks.
-3. Outside a dev container, install the hooks manually:
+2. Once per machine, set up the tools with
+   [jay-withers/toolchain](https://github.com/jay-withers/toolchain)
+   (`bash src/setup.sh`), which installs [mise](https://mise.jdx.dev).
+3. In the repo, install its pinned tools and the git hooks:
 
    ```bash
-   make install
+   mise trust && make install   # make install runs `mise install` first
    ```
+
+`mise.toml` pins every tool this repo's hooks and CI use. CI installs the same
+versions (jay-withers/workflows v1.26.0+), so add a tool there rather than
+installing it by hand.
 
 ## Commands
 
 Run `make` (or `make help`) to list the available targets:
 
 ```bash
-make install           # install pre-commit hooks (run once after cloning)
+make install           # install mise tools and pre-commit hooks (run once after cloning)
 make lint              # run all pre-commit hooks against every file
 ```
 
@@ -97,8 +101,9 @@ this template included.
 ## Structure
 
 ```text
-.devcontainer/
-  devcontainer.json    # dev container (ghcr.io/jay-withers/dev-containers/base)
+mise.toml              # pinned tool versions, used locally and in CI
+.vscode/
+  extensions.json      # recommended VS Code extensions
 .github/
   workflows/
     ci-lint.yml        # lints all files on PRs to main (reusable workflow)
