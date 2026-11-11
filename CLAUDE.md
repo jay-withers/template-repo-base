@@ -4,26 +4,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo does
 
-A language-agnostic GitHub repository template. It provides a dev container,
-generic pre-commit hooks, PR/merge CI workflows (linting via a shared reusable
+A language-agnostic GitHub repository template. It provides pinned tools
+(mise), generic pre-commit hooks, PR/merge CI workflows (linting via a shared reusable
 workflow, and auto-tagging on merge), Renovate dependency updates, Conventional
 Commits enforcement, and Makefile scaffolding. It ships no application code on
 purpose — a repo created from it adds its own source and layers
 project-specific hooks/CI on top of this baseline.
 
-## Dev container
+## Tools
 
-The repo is built around the dev container at `.devcontainer/devcontainer.json`,
-which uses the image `ghcr.io/jay-withers/dev-containers/base` (pinned by version and digest) and runs
-`make install` on creation to wire up the pre-commit hooks. Prefer working
-inside the container so tooling versions match CI.
+`mise.toml` pins every tool the hooks and CI need (python, pre-commit,
+shellcheck). Install them with `mise install` (`make install` does it, then
+wires up the hooks). The shared workflows (v1.26.0+) install the same versions
+in CI, so a new tool goes in `mise.toml`, never only on your machine. A machine
+is set up once with jay-withers/toolchain. There is no dev container.
 
 ## Commands
 
 `make` with no target prints the self-documenting help (the default goal).
 
 ```bash
-make install           # install pre-commit hooks (run once after cloning)
+make install           # install mise tools and pre-commit hooks (run once after cloning)
 make lint              # run all pre-commit hooks against every file
 ```
 
