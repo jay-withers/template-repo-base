@@ -1,4 +1,4 @@
-# template-generic-repo
+# template-repo-base
 
 A language-agnostic GitHub repository template. It gives a new repo a working
 baseline on day one — pinned tools (mise), generic pre-commit hooks, PR/merge CI
@@ -39,10 +39,13 @@ frozen comment. They're deliberately language-agnostic:
 
 - `pre-commit/pre-commit-hooks` — large-file, case-conflict, merge-conflict,
   symlink, YAML, end-of-file, trailing-whitespace, line-ending and shebang
-  checks, plus `no-commit-to-branch` (blocks direct commits to `main`)
+  checks, `forbid-new-submodules`, plus `no-commit-to-branch` (blocks direct
+  commits to `main`)
 - `gitleaks` — secret scanning
 - `actionlint` — GitHub Actions workflow linting
 - `shellcheck` — shell scripts
+- `hadolint` — Dockerfiles, through Docker (`hadolint-docker`), so nothing to
+  install; it only runs once the repo has a Dockerfile
 - `commitlint` — [Conventional Commits](https://www.conventionalcommits.org/),
   at the `commit-msg` stage
 
@@ -69,22 +72,28 @@ Workflows are prefixed `ci-` (pull-request checks) or `cd-` (post-merge delivery
   to `main`, by calling the shared reusable workflow
   `jay-withers/workflows/.github/workflows/pre-commit.yml`. Its status
   check reports as `pre-commit / Pre-commit`.
+- **`.github/workflows/ci-codeql.yml`** — CodeQL code scanning of the
+  workflows, on PRs, on `main` and weekly. Findings land in Security → Code
+  scanning; the job doesn't fail on them.
 - **`.github/workflows/cd-tag.yml`** — on every merge to `main`, creates a
   semver tag and matching GitHub release from the Conventional Commits since the
   last release (default bump: patch), via
   `jay-withers/workflows/.github/workflows/release.yml`.
 
-Both pin the reusable workflow by commit SHA with the tag as a comment. Add your
+Each pins its reusable workflow by commit SHA with the tag as a comment. Add your
 own `ci-*` workflows (build, test, etc.) as you add code, and require their
 checks in branch protection (below).
 
 ## Renovate
 
-`renovate.json` extends `config:recommended` on a weekly schedule with
-auto-approve and automerge. `platformAutomerge` needs repo-level auto-merge to
-be enabled — see [Configuring GitHub](#configuring-github-for-a-repo-created-from-this-template).
-The `pre-commit` manager updates the frozen hook revisions in
-`.pre-commit-config.yaml`; add language/ecosystem managers as your repo grows.
+`renovate.json` extends the shared preset `github>jay-withers/renovate` (see
+[jay-withers/renovate](https://github.com/jay-withers/renovate) for the
+policy: Monday schedule, auto-merge once checks pass, a three-day wait on new
+releases, and the `pre-commit` and `mise` managers that keep hook revisions
+and `mise.toml` current), plus `autoApprove: true`. Its Docker, GitHub
+Actions, Terraform and npm rules switch on by themselves as the repo gains
+those ecosystems. `platformAutomerge` needs repo-level auto-merge to be
+enabled — see [Configuring GitHub](#configuring-github-for-a-repo-created-from-this-template).
 
 ## Configuring GitHub for a repo created from this template
 
@@ -107,6 +116,7 @@ mise.toml              # pinned tool versions, used locally and in CI
 .github/
   workflows/
     ci-lint.yml        # lints all files on PRs to main (reusable workflow)
+    ci-codeql.yml      # CodeQL over the workflows
     cd-tag.yml         # auto-tags + releases on merge to main (semver, conventional commits)
 .editorconfig          # baseline editor settings (aligned with pre-commit hooks)
 .gitattributes         # git-level LF normalization
