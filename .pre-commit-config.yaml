@@ -15,6 +15,11 @@ repos:
         args: ["--allow-multiple-documents"]
 
       - id: end-of-file-fixer
+        # NuGet writes packages.lock.json with no final newline and rewrites
+        # it on every restore, so a "fixed" one fails workflows' dotnet.yml
+        # locked check. Harmless in a repo with no .NET. If a repo adds
+        # pretty-format-json, exclude the lock files there too.
+        exclude: (^|/)packages\.lock\.json$
 
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]

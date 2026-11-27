@@ -40,7 +40,10 @@ frozen comment. They're deliberately language-agnostic:
 - `pre-commit/pre-commit-hooks` — large-file, case-conflict, merge-conflict,
   symlink, YAML, end-of-file, trailing-whitespace, line-ending and shebang
   checks, `forbid-new-submodules`, plus `no-commit-to-branch` (blocks direct
-  commits to `main`)
+  commits to `main`). The end-of-file check leaves NuGet's `packages.lock.json`
+  alone: NuGet rewrites it without a final newline on every restore, and a
+  .NET repo's locked restore check (workflows' `dotnet.yml`) would fail on the
+  hook's fix
 - `gitleaks` — secret scanning
 - `actionlint` — GitHub Actions workflow linting
 - `shellcheck` — shell scripts
